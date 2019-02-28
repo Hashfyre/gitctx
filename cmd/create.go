@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"log"
-	"os"
 
 	"github.com/jfornoff/gitctx/operations/create"
 
@@ -21,13 +20,21 @@ var createCmd = &cobra.Command{
 		name := promptNonBlank("User name")
 		email := promptNonBlank("Email")
 
+		// Prompt lets blank values through if you send it EOL with Ctrl-D...
+		validateNonBlank(ctxName, "Context name")
+		validateNonBlank(name, "User name")
+		validateNonBlank(email, "Email")
+
 		locationConfig, err := create.DefaultConfigLocation(ctxName)
 		if err != nil {
 			log.Fatal(err)
-			os.Exit(1)
 		}
 
-		create.CreateConfig(&create.GitUserConfig{Name: name, Email: email}, locationConfig)
+		err = create.CreateConfig(&create.GitUserConfig{Name: name, Email: email}, locationConfig)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		log.Printf("Created config entry in %v!", locationConfig.Path)
 	},
 }
@@ -52,9 +59,13 @@ func promptNonBlank(label string) string {
 	input, err := prompt.Run()
 	if err != nil {
 		log.Fatalf("Prompt failed %v", err)
-
-		os.Exit(1)
 	}
 
 	return input
+}
+
+func validateNonBlank(value string, name string) {
+	if value == "" {
+		log.Fatalf("%s is blank", name)
+	}
 }
