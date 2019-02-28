@@ -3,7 +3,7 @@ package create
 import "testing"
 import "os"
 import "log"
-import "fmt"
+
 import "path"
 import "io/ioutil"
 import "strings"
@@ -16,13 +16,13 @@ func TestCreateConfig(t *testing.T) {
 	defer cleanUpDirectory(location)
 
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Unable to create config directory: %v", err))
+		t.Fatalf("Unable to create config directory: %v", err)
 	}
 
 	// Check files are present and containing the right information
 	configFileContents, err := ioutil.ReadFile(location.Path)
 	if err != nil {
-		t.Fatal(fmt.Sprintf("Unable to read config file: %v", err))
+		t.Fatalf("Unable to read config file: %v", err)
 	}
 
 	got := strings.TrimSpace(string(configFileContents))
@@ -34,13 +34,13 @@ email = test@example.com
 	`)
 
 	if expected != got {
-		t.Fatal(fmt.Sprintf("\nGot:\n%v \n\nExpected:\n%v", got, expected))
+		t.Fatalf("\nGot:\n%v \n\nExpected:\n%v", got, expected)
 	}
 }
 
 func cleanUpDirectory(location ConfigLocation) {
 	err := os.RemoveAll(path.Dir(location.Path))
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Unable to remove test directory: %v", err))
+		log.Fatalf("Unable to remove test directory: %v", err)
 	}
 }

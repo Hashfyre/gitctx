@@ -1,7 +1,6 @@
 package create
 
 import (
-	"log"
 	"os"
 	"os/user"
 	"path"
@@ -9,24 +8,36 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+// ConfigLocation : Where to store a context configuration
 type ConfigLocation struct {
 	Path string
 }
 
+// GitUserConfig : Contents of a context configuration
 type GitUserConfig struct {
 	Name  string
 	Email string
 }
 
-func DefaultConfig(name string) (*ConfigLocation, error) {
+func DefaultConfigDirectory() (*string, error) {
 	user, err := user.Current()
 
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
-	return &ConfigLocation{Path: path.Join(user.HomeDir, ".config", "gitctx", name)}, nil
+	result := path.Join(user.HomeDir, ".config", "gitctx")
+	return &result, nil
+}
+
+func DefaultConfigLocation(name string) (*ConfigLocation, error) {
+	defaultConfigDirectory, err := DefaultConfigDirectory()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ConfigLocation{Path: path.Join(*defaultConfigDirectory, name)}, nil
 }
 
 func CreateConfig(config *GitUserConfig, location *ConfigLocation) error {

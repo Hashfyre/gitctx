@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 
@@ -22,14 +21,14 @@ var createCmd = &cobra.Command{
 		name := promptNonBlank("User name")
 		email := promptNonBlank("Email")
 
-		locationConfig, err := create.DefaultConfig(ctxName)
+		locationConfig, err := create.DefaultConfigLocation(ctxName)
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(1)
 		}
 
 		create.CreateConfig(&create.GitUserConfig{Name: name, Email: email}, locationConfig)
-		println(fmt.Sprintf("Created config entry in %v!", locationConfig.Path))
+		log.Printf("Created config entry in %v!", locationConfig.Path)
 	},
 }
 
@@ -52,7 +51,7 @@ func promptNonBlank(label string) string {
 
 	input, err := prompt.Run()
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Prompt failed %v", err))
+		log.Fatalf("Prompt failed %v", err)
 
 		os.Exit(1)
 	}
