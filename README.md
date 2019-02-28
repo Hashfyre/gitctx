@@ -19,3 +19,9 @@ git config --get user.email
 ```
 
 This functionality is backed by adding an [`[include] path=<contextpath>`](https://git-scm.com/docs/git-config#_includes) to `.git/config`.
+
+## Future features
+
+- [ ] Delete / Edit contexts
+- [ ] Incorporate GPG signing information into contexts
+- [ ] Detect whether project already uses a `gitctx` context
