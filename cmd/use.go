@@ -7,12 +7,11 @@ import (
 	"log"
 	"path"
 	"path/filepath"
-	"reflect"
 
 	"github.com/jfornoff/gitctx/operations/create"
 	"github.com/jfornoff/gitctx/operations/use"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 var useCmd = &cobra.Command{
@@ -54,12 +53,19 @@ func selectConfig() (*create.ConfigLocation, error) {
 		configsByName[filepath.Base(config.Path)] = config
 	}
 
-	prompt := promptui.Select{
-		Label: "Which context to use?",
-		Items: reflect.ValueOf(configsByName).MapKeys(),
+	configNames := make([]string, 0, len(configsByName))
+
+	for name := range configsByName {
+		configNames = append(configNames, name)
 	}
 
-	_, configName, err := prompt.Run()
+	prompt := survey.Select{
+		Message: "Which context to use?",
+		Options: configNames,
+	}
+
+	configName := ""
+	err = survey.AskOne(&prompt, &configName, validateSelectedConfigName(configNames))
 
 	if err != nil {
 		return nil, err
@@ -87,6 +93,18 @@ func listAvailableConfigs(configDir string) ([]create.ConfigLocation, error) {
 	}
 
 	return result, nil
+}
+
+func validateSelectedConfigName(configNames []string) survey.Validator {
+	return func(val interface{}) error {
+		for _, validConfigName := range configNames {
+			if validConfigName == val {
+				return nil
+			}
+		}
+
+		return errors.New("invalid config option chosen")
+	}
 }
 
 func init() {
